@@ -1,0 +1,89 @@
+# AI Triage Configuration File
+# Copy this to ~/.ai-triage/config.yaml and customize
+
+# AI Model Configuration
+ai:
+  # Provider: openai, anthropic, google, nvidia, etc.
+  provider: "nvidia"
+  
+  # Model name (depends on provider)
+  # NVIDIA: mistralai/mistral-small-3.1-24b-instruct-2503
+  # OpenAI: gpt-4, gpt-3.5-turbo
+  # Anthropic: claude-3-opus-20240229
+  # Google: gemini-pro
+  model: "mistralai/mistral-small-3.1-24b-instruct-2503"
+  
+  # API Configuration
+  api_key: "${NVIDIA_API_KEY}"  # Use env var or set directly
+  base_url: "https://integrate.api.nvidia.com/v1"  # Optional, provider-specific
+  
+  # Model Parameters
+  temperature: 0.2
+  max_tokens: 1000
+  
+# Agent Configuration
+agent:
+  # Enable/disable agent features
+  use_cached_solutions: true  # Use cached solutions for common errors
+  fetch_documentation: true   # Fetch docs from web when needed
+  use_ai_analysis: true       # Use AI for complex errors
+  
+  # Error classification
+  # Errors in these categories will use cached solutions (no API calls)
+  cached_error_types:
+    - connection
+    - import
+    - memory
+    - timeout
+    - permission
+  
+  # Errors in these categories will fetch docs and use AI
+  complex_error_types:
+    - syntax
+    - type
+    - value
+    - unknown
+
+# Documentation Sources
+documentation:
+  # Enable web search for documentation
+  enable_search: true
+  
+  # Search engine (duckduckgo, google)
+  search_engine: "duckduckgo"
+  
+  # Pre-configured documentation URLs (optional)
+  urls:
+    - "https://docs.python.org/3/library/exceptions.html"
+    - "https://fastapi.tiangolo.com/tutorial/debugging/"
+    - "https://requests.readthedocs.io/en/latest/"
+
+# RAG Configuration (optional, requires faiss-cpu)
+rag:
+  enabled: false  # Set to true to enable RAG
+  vector_store: "faiss"
+  chunk_size: 1000
+  chunk_overlap: 200
+  top_k: 3  # Number of relevant docs to retrieve
+
+# Output Configuration
+output:
+  # Show detailed analysis
+  verbose: true
+  
+  # Show API call count
+  show_api_calls: true
+  
+  # Color output (requires colorama on Windows)
+  colored: true
+
+# Quota Management
+quota:
+  # Enable quota tracking
+  enabled: true
+  
+  # Daily API call limit (0 = unlimited)
+  daily_limit: 100
+  
+  # Warn when approaching limit
+  warn_threshold: 0.8  # 80%
