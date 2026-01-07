@@ -1,10 +1,19 @@
 """
-AI LogMaster - Smart Error Analysis with AI-Powered Solutions
+AI LogMaster - Smart error analysis tool with AI-powered solutions
 """
+from .core.analyzer import ErrorAnalyzer, analyze_error
+from .core.agent import Agent
+from .core.classifier import ErrorClassifier
+from .core.doc_fetcher import DocumentationFetcher
+from .core.llm_client import LLMClient
 
-__version__ = "1.0.0"
-__author__ = "Your Name"
+__version__ = "1.0.1"
 
-from .config import get_config, init_config
-
-__all__ = ["get_config", "init_config"]
+__all__ = [
+    'ErrorAnalyzer',
+    'Agent',
+    'ErrorClassifier',
+    'DocumentationFetcher',
+    'LLMClient',
+    'analyze_error',  # Backward compatibility
+]

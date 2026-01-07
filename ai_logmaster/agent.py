@@ -19,7 +19,12 @@ class AgentState(TypedDict):
     analysis: dict
     api_calls: int
 
-def create_agent():
+
+
+class agent:
+    def __init__(self):
+        pass
+    def create_agent():
     """Create the LangGraph agent"""
     try:
         from langgraph.graph import StateGraph, END
@@ -75,7 +80,7 @@ def create_agent():
         
         # Node 2: Fetch Documentation (conditional)
         def fetch_documentation(state: AgentState) -> AgentState:
-            """Fetch relevant documentation if needed"""
+            """Dynamically fetch relevant documentation based on the actual error"""
             if not state["needs_docs"]:
                 print("[AGENT] Using cached knowledge, skipping doc fetch")
                 state["documentation"] = ""
@@ -83,28 +88,137 @@ def create_agent():
             
             print("[AGENT] Fetching documentation from web...")
             
-            # Extract error message for search
-            lines = state["error_context"].split('\n')
-            error_msg = ""
-            for line in lines:
-                if "Error:" in line or "Exception:" in line:
-                    error_msg = line.strip()
-                    break
+            context = state["error_context"]
+            error_type = state["error_type"]
             
-            if not error_msg:
-                error_msg = f"{state['error_type']} error python"
+            # Extract error message and details
+            error_msg = extract_error_message(context)
+            library = detect_library_or_framework(context)
             
-            try:
-                # Search for documentation
-                query = f"{error_msg} official documentation solution"
-                docs = search.run(query)
-                state["documentation"] = docs[:1000]  # Limit to 1000 chars
-                print(f"[AGENT] ✓ Fetched {len(docs)} chars of documentation")
-            except Exception as e:
-                print(f"[AGENT] ✗ Doc fetch failed: {e}")
+            print(f"[AGENT] Detected error: {error_msg}")
+            if library:
+                print(f"[AGENT] Detected library/framework: {library}")
+            
+            # Build multiple search queries for better coverage
+            queries = []
+            
+            # Query 1: Official documentation
+            if library:
+                queries.append(f"{library} {error_msg} official documentation")
+            else:
+                queries.append(f"python {error_msg} official documentation")
+            
+            # Query 2: Solution-focused
+            queries.append(f"how to fix {error_msg}")
+            
+            # Query 3: Error type specific
+            if error_type != "unknown":
+                queries.append(f"{error_type} error {error_msg} solution")
+            
+            # Fetch documentation from multiple searches
+            all_docs = []
+            for i, query in enumerate(queries[:2], 1):  # Limit to 2 queries to save time
+                try:
+                    print(f"[AGENT] Search {i}/{min(2, len(queries))}: {query[:60]}...")
+                    docs = search.run(query)
+                    if docs:
+                        all_docs.append(docs)
+                except Exception as e:
+                    print(f"[AGENT] ✗ Search {i} failed: {e}")
+            
+            # Combine and filter documentation
+            if all_docs:
+                combined_docs = "\n\n".join(all_docs)
+                # Prioritize official documentation and filter noise
+                filtered_docs = filter_relevant_docs(combined_docs, error_msg, library)
+                state["documentation"] = filtered_docs[:2000]  # Increased limit for better context
+                print(f"[AGENT] ✓ Fetched {len(state['documentation'])} chars of documentation")
+            else:
                 state["documentation"] = ""
+                print("[AGENT] ✗ No documentation found")
             
             return state
+        
+        def extract_error_message(context: str) -> str:
+            """Extract the actual error message from context"""
+            lines = context.split('\n')
+            
+            # Look for common error patterns
+            for line in lines:
+                line = line.strip()
+                # Match: "ErrorType: message"
+                if any(keyword in line for keyword in ["Error:", "Exception:", "Traceback"]):
+                    # Extract just the error type and message
+                    if ":" in line:
+                        parts = line.split(":", 1)
+                        if len(parts) == 2:
+                            return parts[1].strip()
+                    return line
+            
+            # Fallback: return first non-empty line
+            for line in lines:
+                if line.strip():
+                    return line.strip()[:100]
+            
+            return "error"
+        
+        def detect_library_or_framework(context: str) -> str:
+            """Detect which library/framework is involved in the error"""
+            # Common libraries and frameworks
+            libraries = {
+                "fastapi": ["fastapi", "uvicorn", "starlette"],
+                "django": ["django"],
+                "flask": ["flask", "werkzeug"],
+                "requests": ["requests", "urllib"],
+                "numpy": ["numpy", "np."],
+                "pandas": ["pandas", "pd."],
+                "tensorflow": ["tensorflow", "tf."],
+                "pytorch": ["torch", "pytorch"],
+                "sqlalchemy": ["sqlalchemy"],
+                "asyncio": ["asyncio", "async", "await"],
+                "langchain": ["langchain"],
+                "openai": ["openai"],
+            }
+            
+            context_lower = context.lower()
+            
+            for lib_name, keywords in libraries.items():
+                if any(keyword in context_lower for keyword in keywords):
+                    return lib_name
+            
+            # Check for file paths that might indicate framework
+            if "site-packages" in context_lower:
+                # Extract package name from path
+                import re
+                match = re.search(r'site-packages[/\\]([^/\\]+)', context_lower)
+                if match:
+                    return match.group(1)
+            
+            return ""
+        
+        def filter_relevant_docs(docs: str, error_msg: str, library: str) -> str:
+            """Filter documentation to keep only relevant parts"""
+            # Split into sentences/paragraphs
+            paragraphs = docs.split('\n')
+            
+            relevant_parts = []
+            error_keywords = error_msg.lower().split()[:5]  # First 5 words of error
+            
+            for para in paragraphs:
+                para_lower = para.lower()
+                # Keep paragraphs that mention the error or library
+                if any(keyword in para_lower for keyword in error_keywords):
+                    relevant_parts.append(para)
+                elif library and library.lower() in para_lower:
+                    relevant_parts.append(para)
+                # Keep paragraphs with solution keywords
+                elif any(word in para_lower for word in ["fix", "solution", "resolve", "cause", "error"]):
+                    relevant_parts.append(para)
+            
+            # If we filtered too much, return original
+            filtered = '\n'.join(relevant_parts)
+            return filtered if len(filtered) > 100 else docs
+        
         
         # Node 3: Analyze with AI (only if needed)
         def analyze_with_ai(state: AgentState) -> AgentState:

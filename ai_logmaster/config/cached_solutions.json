@@ -1,0 +1,108 @@
+{
+    "error_patterns": {
+        "connection": [
+            "ConnectionRefused",
+            "Connection refused",
+            "ECONNREFUSED"
+        ],
+        "import": [
+            "ModuleNotFoundError",
+            "ImportError",
+            "No module named"
+        ],
+        "memory": [
+            "MemoryError",
+            "Out of memory",
+            "OOM"
+        ],
+        "timeout": [
+            "TimeoutError",
+            "timed out",
+            "Read timed out"
+        ],
+        "permission": [
+            "PermissionError",
+            "Permission denied"
+        ],
+        "syntax": [
+            "SyntaxError",
+            "IndentationError"
+        ],
+        "type": [
+            "TypeError",
+            "AttributeError"
+        ],
+        "value": [
+            "ValueError",
+            "KeyError"
+        ]
+    },
+    "cached_solutions": {
+        "connection": {
+            "type": "Connection Error",
+            "cause": "Service is not running or unreachable",
+            "fixes": [
+                "Check if the service is running",
+                "Verify host and port configuration",
+                "Check firewall and network settings"
+            ],
+            "confidence": 0.80,
+            "method": "Cached"
+        },
+        "import": {
+            "type": "Import Error",
+            "cause": "Required package is not installed",
+            "fixes": [
+                "Install package: pip install <package-name>",
+                "Activate virtual environment",
+                "Check package name spelling"
+            ],
+            "confidence": 0.80,
+            "method": "Cached"
+        },
+        "memory": {
+            "type": "Memory Error",
+            "cause": "Insufficient memory available",
+            "fixes": [
+                "Reduce batch size or data volume",
+                "Use generators instead of lists",
+                "Increase system memory"
+            ],
+            "confidence": 0.80,
+            "method": "Cached"
+        },
+        "timeout": {
+            "type": "Timeout Error",
+            "cause": "Operation took too long",
+            "fixes": [
+                "Increase timeout value",
+                "Optimize slow operations",
+                "Check network latency"
+            ],
+            "confidence": 0.80,
+            "method": "Cached"
+        },
+        "permission": {
+            "type": "Permission Error",
+            "cause": "Insufficient file/resource permissions",
+            "fixes": [
+                "Check file permissions: ls -la",
+                "Run with appropriate privileges",
+                "Verify user access rights"
+            ],
+            "confidence": 0.80,
+            "method": "Cached"
+        }
+    },
+    "generic_solution": {
+        "type": "Unknown Error",
+        "cause": "Unable to classify",
+        "fixes": [
+            "Read error message carefully",
+            "Search error online",
+            "Check recent code changes"
+        ],
+        "method": "Generic",
+        "confidence": 0.40
+    }
+}

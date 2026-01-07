@@ -304,6 +304,8 @@ datasets/
 !requirements.txt
 !package.json
 !tsconfig.json
+!cached_solutions.json
+!library_keywords.json
 
 # User-specific files
 .user

@@ -79,11 +79,19 @@ class TriageWrapper:
         context_str = "\n".join(context)
         
         try:
-            from ai_logmaster.analyzer import analyze_error
-            result = analyze_error(context_str)
+            # Use new class-based API
+            from ai_logmaster.core.analyzer import ErrorAnalyzer
+            analyzer = ErrorAnalyzer()
+            result = analyzer.analyze(context_str)
             self.display_analysis(result)
         except ImportError:
-            self.display_basic_analysis(context_str)
+            # Fallback to old function-based API
+            try:
+                from ai_logmaster.analyzer import analyze_error
+                result = analyze_error(context_str)
+                self.display_analysis(result)
+            except ImportError:
+                self.display_basic_analysis(context_str)
     
     def display_analysis(self, result):
         """Display AI-powered analysis results"""

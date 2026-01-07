@@ -1,0 +1,139 @@
+{
+    "libraries": {
+        "fastapi": {
+            "keywords": [
+                "fastapi",
+                "uvicorn",
+                "starlette"
+            ],
+            "description": "Modern, fast web framework for building APIs"
+        },
+        "django": {
+            "keywords": [
+                "django"
+            ],
+            "description": "High-level Python web framework"
+        },
+        "flask": {
+            "keywords": [
+                "flask",
+                "werkzeug"
+            ],
+            "description": "Lightweight WSGI web application framework"
+        },
+        "requests": {
+            "keywords": [
+                "requests",
+                "urllib"
+            ],
+            "description": "HTTP library for Python"
+        },
+        "numpy": {
+            "keywords": [
+                "numpy",
+                "np."
+            ],
+            "description": "Numerical computing library"
+        },
+        "pandas": {
+            "keywords": [
+                "pandas",
+                "pd."
+            ],
+            "description": "Data analysis and manipulation library"
+        },
+        "tensorflow": {
+            "keywords": [
+                "tensorflow",
+                "tf."
+            ],
+            "description": "Machine learning framework"
+        },
+        "pytorch": {
+            "keywords": [
+                "torch",
+                "pytorch"
+            ],
+            "description": "Deep learning framework"
+        },
+        "sqlalchemy": {
+            "keywords": [
+                "sqlalchemy"
+            ],
+            "description": "SQL toolkit and ORM"
+        },
+        "asyncio": {
+            "keywords": [
+                "asyncio",
+                "async",
+                "await"
+            ],
+            "description": "Asynchronous I/O framework"
+        },
+        "langchain": {
+            "keywords": [
+                "langchain"
+            ],
+            "description": "Framework for developing LLM applications"
+        },
+        "openai": {
+            "keywords": [
+                "openai"
+            ],
+            "description": "OpenAI API client library"
+        },
+        "scikit-learn": {
+            "keywords": [
+                "sklearn",
+                "scikit-learn",
+                "scikit_learn"
+            ],
+            "description": "Machine learning library"
+        },
+        "matplotlib": {
+            "keywords": [
+                "matplotlib",
+                "plt."
+            ],
+            "description": "Plotting and visualization library"
+        },
+        "selenium": {
+            "keywords": [
+                "selenium",
+                "webdriver"
+            ],
+            "description": "Web browser automation"
+        },
+        "beautifulsoup": {
+            "keywords": [
+                "beautifulsoup",
+                "bs4"
+            ],
+            "description": "HTML/XML parsing library"
+        },
+        "pytest": {
+            "keywords": [
+                "pytest"
+            ],
+            "description": "Testing framework"
+        },
+        "pydantic": {
+            "keywords": [
+                "pydantic"
+            ],
+            "description": "Data validation library"
+        },
+        "celery": {
+            "keywords": [
+                "celery"
+            ],
+            "description": "Distributed task queue"
+        },
+        "redis": {
+            "keywords": [
+                "redis"
+            ],
+            "description": "In-memory data structure store"
+        }
+    }
+}
