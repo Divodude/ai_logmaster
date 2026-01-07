@@ -280,6 +280,17 @@ Contributions welcome! Please open an issue or PR.
 - 🐛 Issues: https://github.com/Divodude/ai-logmaster/issues
 - 📖 Docs: https://github.com/Divodude/ai-logmaster
 
+## ☕ Buy Me a Coffee
+
+If you find AI LogMaster helpful and want to support its development, consider buying me a coffee! Your support helps keep this project alive and continuously improving.
+
+<div align="center">
+  <img src="upi_qr.png" alt="UPI QR Code" width="300"/>
+  <p><em>Scan to send ₹100 via UPI</em></p>
+</div>
+
+Every contribution, no matter how small, is greatly appreciated! 🙏
+
 ## Acknowledgments
 
 Built with:
