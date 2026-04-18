@@ -8,7 +8,7 @@ def buggy_function():
     print("Connecting to database...")
     
     # This will fail
-    raise ConnectionRefusedError("Connection refused to database at localhost:5432")
+    # raise ConnectionRefusedError("Connection refused to database at localhost:5432")
 
 if __name__ == "__main__":
     buggy_function()

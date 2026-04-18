@@ -1,6 +1,6 @@
 import os
 import re
-from typing import List, Dict, Tuple
+from typing import List, Tuple, Optional
 
 class CodebaseIngestor:
     """Ingests local codebase context based on error tracebacks."""
@@ -47,6 +47,7 @@ class CodebaseIngestor:
         files_and_lines = self.extract_files_from_traceback(error_context)
         if not files_and_lines:
             return ""
+
             
         context_blocks = []
         processed_files = set()
@@ -75,6 +76,33 @@ class CodebaseIngestor:
         final_context += "\n\n".join(context_blocks)
         final_context += "\n========================\n"
         return final_context
+
+    def get_user_files(self, error_context: str) -> List[Tuple[str, int]]:
+        """
+        Return (file_path, line_number) tuples for every user-owned file
+        mentioned in the traceback (stdlib / site-packages excluded).
+        Useful for the AutoFixer which needs the raw file list.
+
+        Args:
+            error_context: Raw error output.
+
+        Returns:
+            List of (file_path, line_number) for local user code files.
+        """
+        files_and_lines = self.extract_files_from_traceback(error_context)
+        skip_patterns = ["site-packages", os.sep + "lib" + os.sep, "frozen importlib"]
+        seen: set = set()
+        result: List[Tuple[str, int]] = []
+        for fp, ln in reversed(files_and_lines):  # deepest call first
+            if any(p in fp for p in skip_patterns):
+                continue
+            if not os.path.isfile(fp):
+                continue
+            key = os.path.abspath(fp)
+            if key not in seen:
+                seen.add(key)
+                result.append((fp, ln))
+        return result
         
     def _read_file_snippet(self, file_path: str, target_line: int) -> str:
         """Read lines from a file centered around the target line."""

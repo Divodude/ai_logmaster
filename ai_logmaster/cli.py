@@ -22,14 +22,16 @@ load_dotenv()
 # Error detection patterns
 ERROR_KEYWORDS = [
     "ERROR", "CRITICAL", "EXCEPTION", "TRACEBACK", 
-    "FAILED", "FATAL", "PANIC", "CRASH"
+    "FAILED", "FATAL", "PANIC", "CRASH", "ERRNO",
+    "NO SUCH FILE", "NOT FOUND", "CAN'T OPEN FILE"
 ]
 
 class TriageWrapper:
-    def __init__(self, buffer_size=100):
+    def __init__(self, buffer_size=100, auto_fix=False):
         self.buffer = deque(maxlen=buffer_size)
         self.error_detected = False
         self.error_lines = []
+        self.auto_fix = auto_fix
         
     def detect_error(self, line):
         """Check if line contains error indicators"""
@@ -70,7 +72,9 @@ class TriageWrapper:
             
             print("=" * 60)
             
-            if self.error_detected:
+            if self.error_detected or return_code != 0:
+                if not self.error_detected and return_code != 0:
+                    print(f"\n[TRIAGE] ❌ Command failed with exit code {return_code}")
                 self.analyze_errors()
             else:
                 print(f"\n[TRIAGE] ✅ Command completed successfully (exit code: {return_code})")
@@ -95,6 +99,16 @@ class TriageWrapper:
             analyzer = ErrorAnalyzer()
             result = analyzer.analyze(context_str)
             self.display_analysis(result)
+            
+            # Auto-fix: Trigger if flag is set OR if we want to suggest it (prompt mode)
+            if self.auto_fix:
+                analyzer.attempt_auto_fix(context_str, result)
+            else:
+                # Prompt user even if flag wasn't provided
+                print("\n[TRIAGE] 💡 AI found a possible fix for your code.")
+                choice = input("[TRIAGE] Would you like to see the proposed fix? [y/N] ").strip().lower()
+                if choice in ('y', 'yes'):
+                    analyzer.attempt_auto_fix(context_str, result)
         except ImportError:
             # Fallback to old function-based API
             try:
@@ -216,13 +230,15 @@ def main():
     run_parser.add_argument("cmd", help="Command to execute (use quotes)")
     run_parser.add_argument("--buffer", type=int, default=100, 
                            help="Number of lines to buffer (default: 100)")
+    run_parser.add_argument("--auto-fix", action="store_true",
+                           help="Attempt to automatically fix errors using AI")
     
     args = parser.parse_args()
     
     if args.command == "init":
         init_config()
     elif args.command == "run":
-        wrapper = TriageWrapper(buffer_size=args.buffer)
+        wrapper = TriageWrapper(buffer_size=args.buffer, auto_fix=args.auto_fix)
         exit_code = wrapper.run_command(args.cmd)
         sys.exit(exit_code)
     else:

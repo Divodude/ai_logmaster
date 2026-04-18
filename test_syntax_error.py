@@ -11,7 +11,7 @@ def broken_function():
     print("Starting complex operation...")
     
     # This has a syntax error
-    if True
+    if True:
         print("This will fail")
     
     return "success"

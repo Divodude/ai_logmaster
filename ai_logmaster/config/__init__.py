@@ -76,6 +76,7 @@ class Config:
                 "use_cached_solutions": True,
                 "fetch_documentation": True,
                 "use_ai_analysis": True,
+                "auto_fix": False,
                 "cached_error_types": ["connection", "import", "memory", "timeout", "permission"],
                 "complex_error_types": ["syntax", "type", "value", "unknown"],
             },
