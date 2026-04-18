@@ -8,6 +8,17 @@ import subprocess
 import argparse
 from collections import deque
 
+# Fix Unicode encoding on Windows terminals (cp1252 can't handle emojis)
+if sys.stdout.encoding != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if sys.stderr.encoding != 'utf-8':
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
+# Load .env file so GROQ_API_KEY etc. are available before any imports
+from dotenv import load_dotenv
+load_dotenv()
+
+
 # Error detection patterns
 ERROR_KEYWORDS = [
     "ERROR", "CRITICAL", "EXCEPTION", "TRACEBACK", 

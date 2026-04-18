@@ -1,99 +1,58 @@
 """
-Agentic AI Agent - True tool-calling agent with LangGraph
-Uses ReAct pattern where AI decides when to use tools
+Agentic AI Agent - Direct Groq LLM calls with structured output
+Uses ChatGroq directly for fast, reliable analysis without parallel tool call issues
 """
 import os
-from typing import TypedDict, Optional, Dict, Annotated, Sequence
+import re
+from typing import Optional, Dict
 from dotenv import load_dotenv
 
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-
-from .tools import AGENT_TOOLS
+from langchain_core.messages import HumanMessage, SystemMessage
 from .classifier import ErrorClassifier
 
 load_dotenv()
 
 
-class AgentState(TypedDict):
-    """State for the agentic workflow"""
-    messages: Annotated[Sequence[BaseMessage], "The messages in the conversation"]
-    error_context: str
-    final_analysis: Optional[Dict]
-
-
 class AgenticAgent:
-    """True agentic AI that decides when to use tools"""
+    """Groq-powered AI agent for error analysis"""
     
     def __init__(self, config: Optional[Dict] = None):
         self.config = config or {}
         self.classifier = ErrorClassifier()
         self.llm = None
-        self.tools = AGENT_TOOLS
-        self.agent_executor = None
+        self.agent_executor = self  # keep compatibility with analyzer.py check
         
         self._initialize()
     
     def _initialize(self):
-        """Initialize the LLM and agent"""
+        """Initialize the Groq LLM"""
         try:
-            from langchain_openai import ChatOpenAI
-            from langgraph.prebuilt import create_react_agent
+            from langchain_groq import ChatGroq
             
-            # Initialize LLM
-            self.llm = ChatOpenAI(
-                model=self.config.get("model", "mistralai/mistral-small-3.1-24b-instruct-2503"),
-                base_url=self.config.get("base_url", "https://integrate.api.nvidia.com/v1"),
-                api_key=self.config.get("api_key", os.environ.get("NVIDIA_API_KEY", "")),
+            self.llm = ChatGroq(
+                model=self.config.get("model", "llama-3.1-8b-instant"),
+                api_key=self.config.get("api_key", os.environ.get("GROQ_API_KEY", "")),
                 temperature=self.config.get("temperature", 0.1),
+                max_tokens=self.config.get("max_tokens", 1024),
             )
-            
-            # Store system prompt to use when invoking
-            self.system_prompt = """You are an expert debugging assistant that helps analyze and fix programming errors.
-
-Your goal is to:
-1. Understand the error from the context
-2. Decide which tools to use (if any) to gather more information
-3. Provide a clear, actionable solution
-
-Available tools:
-- search_documentation: Search for docs when you need specific information about an error
-- get_cached_solution: Get known solutions for common errors (ImportError, ConnectionError, etc.)
-- detect_library_from_error: Identify which library/framework is involved
-- classify_error_type: Understand the error category
-
-Guidelines:
-- For SIMPLE errors (ImportError, ConnectionError): Use get_cached_solution
-- For COMPLEX errors (NameError, TypeError with unclear cause): Use search_documentation
-- Always detect the library first if you're unsure what framework is involved
-- Be concise and provide actionable fixes
-- Only use tools when necessary - use your knowledge for obvious errors
-
-Output format:
-TYPE: <error type>
-CAUSE: <root cause>
-FIX1: <first fix>
-FIX2: <second fix>
-FIX3: <third fix>"""
-            
-            # Create ReAct agent (no prompt parameter)
-            self.agent_executor = create_react_agent(
-                self.llm,
-                self.tools
-            )
-            
-            print("[AGENTIC_AGENT] Initialized with tool-calling capabilities")
+            print("[AGENTIC_AGENT] Initialized with Groq LLM")
             
         except ImportError as e:
             print(f"[AGENTIC_AGENT] Failed to initialize: {e}")
+            self.llm = None
             self.agent_executor = None
         except Exception as e:
             print(f"[AGENTIC_AGENT] Initialization error: {e}")
+            self.llm = None
             self.agent_executor = None
+    
+    def invoke(self, inputs: dict) -> dict:
+        """Compatibility shim"""
+        return inputs
     
     def analyze(self, error_context: str) -> Dict:
         """
-        Analyze error using agentic AI with tools
+        Analyze error using Groq LLM directly.
         
         Args:
             error_context: Error logs and context
@@ -101,59 +60,36 @@ FIX3: <third fix>"""
         Returns:
             Analysis result dict
         """
-        if not self.agent_executor:
-            raise Exception("Agent not initialized")
+        if not self.llm:
+            raise Exception("Groq LLM not initialized")
         
-        print("[AGENTIC_AGENT] Starting agentic analysis...")
+        print("[AGENTIC_AGENT] Starting Groq analysis...")
         
         try:
-            from langchain_core.messages import SystemMessage
+            system = SystemMessage(content="""You are an expert debugging assistant.
+Analyze the error and the provided CODEBASE CONTEXT (if any) to provide a specific fix for the user's codebase.
+Respond ONLY in this exact format with no extra text before or after:
+TYPE: <error type>
+CAUSE: <root cause in one sentence (referencing the specific code)>
+FIX1: <specific actionable fix (mention the file and line if possible)>
+FIX2: <alternative fix>
+FIX3: <prevention tip>""")
             
-            # Create messages with system prompt first
-            messages = [
-                SystemMessage(content=self.system_prompt),
-                HumanMessage(
-                    content=f"""Analyze this error and provide a solution:
-
-{error_context}
-
-Use tools if needed to gather information, then provide your analysis."""
-                )
-            ]
+            human = HumanMessage(content=f"Analyze this error and context:\n\n{error_context}")
             
-            # Run the agent
-            result = self.agent_executor.invoke({
-                "messages": messages
-            })
+            response = self.llm.invoke([system, human])
+            content = response.content
             
-            # Extract the final AI message
-            result_messages = result.get("messages", [])
-            final_message = None
+            analysis = self._parse_response(content)
+            analysis["api_calls_used"] = 1
+            analysis["method"] = "Groq AI"
+            analysis["confidence"] = 0.88
             
-            for msg in reversed(result_messages):
-                if isinstance(msg, AIMessage) and not msg.tool_calls:
-                    final_message = msg.content
-                    break
-            
-            if not final_message:
-                final_message = result_messages[-1].content if result_messages else "No response"
-            
-            # Parse the response
-            analysis = self._parse_response(final_message)
-            
-            # Count tool calls (API calls)
-            tool_calls = sum(1 for msg in result_messages if isinstance(msg, AIMessage) and msg.tool_calls)
-            analysis["api_calls_used"] = tool_calls + 1  # +1 for final response
-            analysis["method"] = "Agentic AI"
-            
-            print(f"[AGENTIC_AGENT] ✓ Analysis complete (Tool calls: {tool_calls}, Total API: {analysis['api_calls_used']})")
-            
+            print("[AGENTIC_AGENT] \u2713 Groq analysis complete")
             return analysis
             
         except Exception as e:
             print(f"[AGENTIC_AGENT] Analysis failed: {e}")
-            import traceback
-            traceback.print_exc()
             # Fallback to cached solution
             error_type, _ = self.classifier.classify(error_context)
             cached = self.classifier.get_cached_solution(error_type)
@@ -165,7 +101,7 @@ Use tools if needed to gather information, then provide your analysis."""
             "type": "Unknown",
             "cause": "Not determined",
             "fixes": [],
-            "confidence": 0.85
+            "confidence": 0.88
         }
         
         for line in content.split('\n'):
@@ -175,7 +111,6 @@ Use tools if needed to gather information, then provide your analysis."""
             elif line.startswith('CAUSE:'):
                 result["cause"] = line.replace('CAUSE:', '').strip()
             elif line.startswith('FIX'):
-                import re
                 fix = re.sub(r'^FIX\d+:\s*', '', line)
                 if fix:
                     result["fixes"].append(fix)
@@ -199,7 +134,6 @@ def analyze_with_agent(error_context: str) -> Dict:
         return agent.analyze(error_context)
     except Exception as e:
         print(f"[AGENT] Agentic analysis failed: {e}")
-        # Fallback
         classifier = ErrorClassifier()
         error_type, _ = classifier.classify(error_context)
         cached = classifier.get_cached_solution(error_type)

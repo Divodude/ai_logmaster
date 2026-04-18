@@ -5,6 +5,7 @@ from typing import Dict, Optional
 
 from .llm_client import LLMClient
 from .classifier import ErrorClassifier
+from .ingestor import CodebaseIngestor
 
 
 class ErrorAnalyzer:
@@ -15,6 +16,7 @@ class ErrorAnalyzer:
         self.agent = None
         self.llm_client = LLMClient(config)
         self.classifier = ErrorClassifier()
+        self.ingestor = CodebaseIngestor(context_lines_limit=200)
         
         # Try to initialize agentic agent
         try:
@@ -46,10 +48,16 @@ class ErrorAnalyzer:
         Returns:
             Analysis result dict
         """
+        # Fetch codebase context
+        codebase_context = self.ingestor.get_codebase_context(context)
+        augmented_context = context
+        if codebase_context:
+            augmented_context = f"{context}\n\n{codebase_context}"
+            
         # Try agentic agent first
         if self.agent:
             try:
-                result = self.agent.analyze(context)
+                result = self.agent.analyze(augmented_context)
                 if result.get("api_calls_used") is not None:
                     print(f"[ANALYZER] API calls used: {result['api_calls_used']}")
                 return result
@@ -60,7 +68,7 @@ class ErrorAnalyzer:
         try:
             print("[ANALYZER] Using basic AI analysis...")
             error_type, _ = self.classifier.classify(context)
-            result = self.llm_client.analyze_basic(context, error_type)
+            result = self.llm_client.analyze_basic(augmented_context, error_type)
             return result
         except Exception as e:
             print(f"[ANALYZER] AI analysis failed: {e}, using pattern matching")

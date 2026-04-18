@@ -18,19 +18,19 @@ class LLMClient:
         self._initialize_llm()
     
     def _initialize_llm(self):
-        """Initialize the LLM"""
+        """Initialize the LLM using Groq"""
         try:
-            from langchain_openai import ChatOpenAI
+            from langchain_groq import ChatGroq
             
-            self.llm = ChatOpenAI(
-                model=self.config.get("model", "mistralai/mistral-small-3.1-24b-instruct-2503"),
-                base_url=self.config.get("base_url", "https://integrate.api.nvidia.com/v1"),
-                api_key=self.config.get("api_key", os.environ.get("NVIDIA_API_KEY", "")),
+            self.llm = ChatGroq(
+                model=self.config.get("model", "llama-3.1-8b-instant"),
+                api_key=self.config.get("api_key", os.environ.get("GROQ_API_KEY", "")),
                 temperature=self.config.get("temperature", 0.1),
+                max_tokens=self.config.get("max_tokens", 1024),
             )
-            print("[LLM_CLIENT] LLM initialized successfully")
+            print("[LLM_CLIENT] Groq LLM initialized successfully")
         except ImportError as e:
-            print(f"[LLM_CLIENT] Failed to initialize LLM: {e}")
+            print(f"[LLM_CLIENT] Failed to initialize Groq LLM: {e}")
             self.llm = None
     
     def analyze_with_docs(self, error_context: str, documentation: str) -> Dict:
@@ -98,22 +98,22 @@ FIX3: <prevention tip>""")
         try:
             from langchain_core.prompts import ChatPromptTemplate
             
-            prompt = ChatPromptTemplate.from_template("""Analyze this {error_type} error and provide fixes.
+            prompt = ChatPromptTemplate.from_template("""Analyze this {error_type} error, using the provided CODEBASE CONTEXT if available.
 
-Error:
+Error context (including codebase):
 {error}
 
-Format:
+Format ONLY in this exact format with no extra text before or after:
 TYPE: <type>
-CAUSE: <cause>
-FIX1: <fix>
-FIX2: <fix>
-FIX3: <fix>""")
+CAUSE: <root cause (mention code if available)>
+FIX1: <specific fix>
+FIX2: <alternative fix>
+FIX3: <prevention tip>""")
             
             chain = prompt | self.llm
             response = chain.invoke({
                 "error_type": error_type,
-                "error": error_context[:500]
+                "error": error_context
             })
             
             result = self._parse_response(response.content)

@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="ai-logmaster",
-    version="1.0.1",
+    version="1.0.2",
     author="Divyansh",
     author_email="ry604492@gmail.com",
     description="Smart error analysis tool with AI-powered solutions",

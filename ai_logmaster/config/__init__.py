@@ -66,12 +66,11 @@ class Config:
         """Return minimal default configuration"""
         return {
             "ai": {
-                "provider": "nvidia",
-                "model": "mistralai/mistral-small-3.1-24b-instruct-2503",
-                "api_key": os.environ.get("NVIDIA_API_KEY", ""),
-                "base_url": "https://integrate.api.nvidia.com/v1",
+                "provider": "groq",
+                "model": "llama-3.1-8b-instant",
+                "api_key": os.environ.get("GROQ_API_KEY", ""),
                 "temperature": 0.2,
-                "max_tokens": 1000,
+                "max_tokens": 1024,
             },
             "agent": {
                 "use_cached_solutions": True,
