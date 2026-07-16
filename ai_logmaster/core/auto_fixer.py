@@ -25,7 +25,11 @@ class AutoFixer:
         Args:
             llm: An already-initialised LangChain chat model (e.g. ChatGroq instance).
         """
-        self.llm = llm
+        if llm is None:
+            from .llm_manager import GlobalLLMManager
+            self.llm = GlobalLLMManager().get_llm()
+        else:
+            self.llm = llm
 
     # ------------------------------------------------------------------
     # Public API

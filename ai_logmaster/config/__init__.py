@@ -6,37 +6,53 @@ import os
 import yaml
 from pathlib import Path
 from typing import Dict, Any
+import json
 
 # Default config location
 DEFAULT_CONFIG_DIR = Path.home() / ".ai-logmaster"
-DEFAULT_CONFIG_FILE = DEFAULT_CONFIG_DIR / "config.yaml"
-PACKAGE_CONFIG_EXAMPLE = Path(__file__).parent / "config.yaml.example"
+DEFAULT_CONFIG_FILE_JSON = DEFAULT_CONFIG_DIR / "config.json"
+DEFAULT_CONFIG_FILE_YAML = DEFAULT_CONFIG_DIR / "config.yaml"
+PACKAGE_CONFIG_EXAMPLE_JSON = Path(__file__).parent / "config.json.example"
+PACKAGE_CONFIG_EXAMPLE_YAML = Path(__file__).parent / "config.yaml.example"
 
 class Config:
     """Configuration manager"""
     
     def __init__(self, config_path: str = None):
-        self.config_path = config_path or str(DEFAULT_CONFIG_FILE)
+        self.config_path = config_path
         self.config = self._load_config()
     
     def _load_config(self) -> Dict[str, Any]:
         """Load configuration from file"""
         
-        # Check if user config exists
-        if os.path.exists(self.config_path):
-            config_file = self.config_path
-        elif os.path.exists(PACKAGE_CONFIG_EXAMPLE):
+        config_file = None
+        is_json = False
+        
+        if self.config_path and os.path.exists(self.config_path):
+            config_file = Path(self.config_path)
+            is_json = config_file.suffix == '.json'
+        elif os.path.exists(DEFAULT_CONFIG_FILE_JSON):
+            config_file = DEFAULT_CONFIG_FILE_JSON
+            is_json = True
+        elif os.path.exists(DEFAULT_CONFIG_FILE_YAML):
+            config_file = DEFAULT_CONFIG_FILE_YAML
+            is_json = False
+        elif os.path.exists(PACKAGE_CONFIG_EXAMPLE_JSON):
             # Use package example as fallback
-            config_file = PACKAGE_CONFIG_EXAMPLE
-            print(f"[CONFIG] Using example config from {PACKAGE_CONFIG_EXAMPLE}")
-            print(f"[CONFIG] Copy to {DEFAULT_CONFIG_FILE} to customize")
+            config_file = PACKAGE_CONFIG_EXAMPLE_JSON
+            is_json = True
+            print(f"[CONFIG] Using example config from {PACKAGE_CONFIG_EXAMPLE_JSON}")
+            print(f"[CONFIG] Copy to {DEFAULT_CONFIG_FILE_JSON} to customize")
         else:
             # Return minimal default config
             return self._get_default_config()
         
         try:
             with open(config_file, 'r') as f:
-                config = yaml.safe_load(f)
+                if is_json:
+                    config = json.load(f)
+                else:
+                    config = yaml.safe_load(f)
             
             # Expand environment variables
             config = self._expand_env_vars(config)
@@ -127,10 +143,10 @@ def init_config():
         DEFAULT_CONFIG_DIR.mkdir(parents=True)
         print(f"[CONFIG] Created config directory: {DEFAULT_CONFIG_DIR}")
     
-    if not DEFAULT_CONFIG_FILE.exists() and PACKAGE_CONFIG_EXAMPLE.exists():
+    if not DEFAULT_CONFIG_FILE_JSON.exists() and PACKAGE_CONFIG_EXAMPLE_JSON.exists():
         import shutil
-        shutil.copy(PACKAGE_CONFIG_EXAMPLE, DEFAULT_CONFIG_FILE)
-        print(f"[CONFIG] Created config file: {DEFAULT_CONFIG_FILE}")
+        shutil.copy(PACKAGE_CONFIG_EXAMPLE_JSON, DEFAULT_CONFIG_FILE_JSON)
+        print(f"[CONFIG] Created config file: {DEFAULT_CONFIG_FILE_JSON}")
         print(f"[CONFIG] Please edit this file to set your API key")
         return False
     

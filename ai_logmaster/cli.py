@@ -110,13 +110,7 @@ class TriageWrapper:
                 if choice in ('y', 'yes'):
                     analyzer.attempt_auto_fix(context_str, result)
         except ImportError:
-            # Fallback to old function-based API
-            try:
-                from ai_logmaster.analyzer import analyze_error
-                result = analyze_error(context_str)
-                self.display_analysis(result)
-            except ImportError:
-                self.display_basic_analysis(context_str)
+            self.display_basic_analysis(context_str)
     
     def display_analysis(self, result):
         """Display AI-powered analysis results"""

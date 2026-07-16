@@ -18,27 +18,19 @@ class ErrorAnalyzer:
         self.classifier = ErrorClassifier()
         self.ingestor = CodebaseIngestor(context_lines_limit=200)
         
-        # Try to initialize agentic agent
         try:
-            from .agentic_agent import AgenticAgent
-            self.agent = AgenticAgent(config)
-            print("[ANALYZER] Using agentic AI with tool-calling capabilities")
+            from .agent import Agent
+            self.agent = Agent(config)
+            print("[ANALYZER] Using LangGraph agent")
         except Exception as e:
-            print(f"[ANALYZER] Agentic agent initialization failed: {e}")
-            # Try old agent as fallback
-            try:
-                from .agent import Agent
-                self.agent = Agent(config)
-                print("[ANALYZER] Using standard agent")
-            except Exception as e2:
-                print(f"[ANALYZER] Standard agent initialization failed: {e2}")
+            print(f"[ANALYZER] Agent initialization failed: {e}")
     
     def analyze(self, context: str) -> Dict:
         """
         Analyze error with intelligent fallback chain
         
         Fallback order:
-        1. Agentic Agent (AI decides tools) - Most intelligent
+        1. LangGraph Agent (Fetches Docs + AI solve)
         2. Basic AI - Without documentation
         3. Pattern matching - Cached solutions
         
@@ -54,7 +46,7 @@ class ErrorAnalyzer:
         if codebase_context:
             augmented_context = f"{context}\n\n{codebase_context}"
             
-        # Try agentic agent first
+        # Try LangGraph agent first
         if self.agent:
             try:
                 result = self.agent.analyze(augmented_context)
@@ -84,13 +76,8 @@ class ErrorAnalyzer:
         Attempt to automatically fix the code using the LLM.
         """
         from .auto_fixer import AutoFixer
-        
-        llm = None
-        # Get the LLM instance from the agent or basic client
-        if self.agent and hasattr(self.agent, "llm") and self.agent.llm:
-            llm = self.agent.llm
-        elif self.llm_client and getattr(self.llm_client, "llm", None):
-            llm = self.llm_client.llm
+        from .llm_manager import GlobalLLMManager
+        llm = GlobalLLMManager().get_llm()
             
         if not llm:
             print("[ANALYZER] No LLM available to perform auto-fix.")

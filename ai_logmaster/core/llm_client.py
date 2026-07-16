@@ -14,24 +14,8 @@ class LLMClient:
     
     def __init__(self, config: Optional[Dict] = None):
         self.config = config or {}
-        self.llm = None
-        self._initialize_llm()
-    
-    def _initialize_llm(self):
-        """Initialize the LLM using Groq"""
-        try:
-            from langchain_groq import ChatGroq
-            
-            self.llm = ChatGroq(
-                model=self.config.get("model", "llama-3.1-8b-instant"),
-                api_key=self.config.get("api_key", os.environ.get("GROQ_API_KEY", "")),
-                temperature=self.config.get("temperature", 0.1),
-                max_tokens=self.config.get("max_tokens", 1024),
-            )
-            print("[LLM_CLIENT] Groq LLM initialized successfully")
-        except ImportError as e:
-            print(f"[LLM_CLIENT] Failed to initialize Groq LLM: {e}")
-            self.llm = None
+        from .llm_manager import GlobalLLMManager
+        self.llm = GlobalLLMManager().get_llm()
     
     def analyze_with_docs(self, error_context: str, documentation: str) -> Dict:
         """
