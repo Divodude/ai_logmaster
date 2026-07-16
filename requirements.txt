@@ -7,7 +7,7 @@ psutil
 
 # AI/RAG Dependencies
 python-dotenv
-langchain-openai
+langchain-groq
 langchain-community
 langchain-core
 langgraph
