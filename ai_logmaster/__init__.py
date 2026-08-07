@@ -6,7 +6,7 @@ from .core.agent import Agent
 from .core.classifier import ErrorClassifier
 from .core.doc_fetcher import DocumentationFetcher
 from .core.llm_client import LLMClient
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 
 __all__ = [
     'ErrorAnalyzer',
