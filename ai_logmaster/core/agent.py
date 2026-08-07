@@ -137,9 +137,9 @@ class Agent:
         state["documentation"] = docs
         
         if docs:
-            print(f"[AGENT] ✓ Fetched {len(docs)} chars of documentation")
+            print(f"[AGENT] [OK] Fetched {len(docs)} chars of documentation")
         else:
-            print("[AGENT] ✗ No documentation found")
+            print("[AGENT] [X] No documentation found")
         
         return state
     
@@ -162,7 +162,7 @@ class Agent:
             state["analysis"] = analysis
             state["api_calls"] += 1
             
-            print(f"[AGENT] ✓ Analysis complete (API calls: {state['api_calls']})")
+            print(f"[AGENT] [OK] Analysis complete (API calls: {state['api_calls']})")
             
         except Exception as e:
             print(f"[AGENT] AI analysis failed: {e}")
@@ -179,10 +179,10 @@ class Agent:
         cached = self.classifier.get_cached_solution(state["error_type"])
         if cached:
             state["analysis"] = cached
-            print(f"[AGENT] ✓ Using cached solution for {state['error_type']}")
+            print(f"[AGENT] [OK] Using cached solution for {state['error_type']}")
         else:
             state["analysis"] = self.classifier.get_generic_solution()
-            print("[AGENT] ✓ Using generic solution")
+            print("[AGENT] [OK] Using generic solution")
         
         return state
     

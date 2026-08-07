@@ -364,11 +364,8 @@ pip install -e ".[dev]"
 ### Run Tests
 
 ```bash
-# Test class architecture
-python test_class_architecture.py
-
-# Test agent workflow
-python run_agent_tests.py
+# Run all unit tests
+python -m unittest discover -s tests
 ```
 
 ## 📦 Requirements
