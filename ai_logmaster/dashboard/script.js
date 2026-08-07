@@ -26,6 +26,9 @@ const DOM = {
     agentCached: document.getElementById('agent-cached'),
     agentFetchDocs: document.getElementById('agent-fetch-docs'),
     agentAutoFix: document.getElementById('agent-auto-fix'),
+    agentIndependentAutoFix: document.getElementById('agent-independent-auto-fix'),
+    agentAutoRecover: document.getElementById('agent-auto-recover'),
+    agentMaxRetries: document.getElementById('agent-max-retries'),
 
     // Documentation
     docEnableSearch: document.getElementById('doc-enable-search'),
@@ -99,6 +102,9 @@ function populateForm(config) {
     DOM.agentCached.checked = agent.use_cached_solutions !== false;
     DOM.agentFetchDocs.checked = agent.fetch_documentation !== false;
     DOM.agentAutoFix.checked = agent.auto_fix !== false;
+    DOM.agentIndependentAutoFix.checked = agent.independent_auto_fix === true;
+    DOM.agentAutoRecover.checked = agent.auto_recover === true;
+    DOM.agentMaxRetries.value = agent.max_retries ?? 3;
 
     // Documentation
     DOM.docEnableSearch.checked = doc.enable_search !== false;
@@ -125,6 +131,9 @@ function buildConfig() {
             fetch_documentation: DOM.agentFetchDocs.checked,
             use_ai_analysis: DOM.agentUseAI.checked,
             auto_fix: DOM.agentAutoFix.checked,
+            independent_auto_fix: DOM.agentIndependentAutoFix.checked,
+            auto_recover: DOM.agentAutoRecover.checked,
+            max_retries: parseInt(DOM.agentMaxRetries.value, 10),
             cached_error_types: ["connection", "import", "memory", "timeout", "permission"],
             complex_error_types: ["syntax", "type", "value", "unknown"],
         },

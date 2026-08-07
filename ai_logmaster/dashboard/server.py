@@ -90,6 +90,9 @@ def _default_config() -> dict:
             "fetch_documentation": True,
             "use_ai_analysis": True,
             "auto_fix": True,
+            "independent_auto_fix": False,
+            "auto_recover": False,
+            "max_retries": 3,
             "cached_error_types": ["connection", "import", "memory", "timeout", "permission"],
             "complex_error_types": ["syntax", "type", "value", "unknown"],
         },
@@ -251,14 +254,19 @@ class DashboardHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(404)
 
 
-def _find_free_port() -> int:
-    """Find a free port on localhost."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(("127.0.0.1", 0))
-        return s.getsockname()[1]
+def _find_free_port(default_port: int = 5894) -> int:
+    """Find specified port or a free port on localhost."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(("127.0.0.1", default_port))
+            return default_port
+    except OSError:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(("127.0.0.1", 0))
+            return s.getsockname()[1]
 
 
-def start_dashboard():
+def start_dashboard(port: int = 5894, open_browser: bool = True):
     """
     Start the dashboard server, open the browser, and block until shutdown.
     Called from the CLI `logmaster init` command.
@@ -272,7 +280,7 @@ def start_dashboard():
         else:
             _save_config(_default_config())
 
-    port = _find_free_port()
+    port = _find_free_port(port)
     url = f"http://127.0.0.1:{port}"
 
     server = http.server.HTTPServer(("127.0.0.1", port), DashboardHandler)
@@ -286,8 +294,12 @@ def start_dashboard():
     print(f"  ║  Press Ctrl+C to close if browser doesn't open  ║")
     print(f"  ╚══════════════════════════════════════════════════╝\n")
 
-    # Open browser
-    webbrowser.open(url)
+    # Open browser if requested
+    if open_browser:
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
 
     try:
         server.serve_forever()

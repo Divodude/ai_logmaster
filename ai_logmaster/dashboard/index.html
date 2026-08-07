@@ -197,6 +197,33 @@
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
+                        
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <span class="toggle-label">Independent Auto Fix</span>
+                                <span class="toggle-desc">Apply fixes without asking for confirmation</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="agent-independent-auto-fix">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <span class="toggle-label">Auto Recover</span>
+                                <span class="toggle-desc">Automatically restart command after a fix</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="agent-auto-recover">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label for="agent-max-retries">Max Retries</label>
+                            <input type="number" id="agent-max-retries" min="0" max="100" value="3">
+                        </div>
                     </div>
                 </div>
             </section>
