@@ -1,20 +1,11 @@
-"""
-Test script with SYNTAX ERROR
-This will trigger the agent to:
-1. Classify as "syntax" error
-2. Fetch documentation from DuckDuckGo
-3. Use AI to analyze with docs
-4. Show 1 API call
-"""
+from langgraph.graph import StateGraph
 
-def broken_function():
-    print("Starting complex operation...")
-    
-    # This has a syntax error
-    if True:
-        print("This will fail")
-    
-    return "success"
+workflow = StateGraph(dict)
 
-if __name__ == "__main__":
-    broken_function()
+workflow.add_node("start", lambda x: x)
+# Define the missing node before adding an edge to it
+workflow.add_node("missing_node", lambda x: x)
+
+workflow.add_edge("start", "missing_node")
+
+workflow.compile()

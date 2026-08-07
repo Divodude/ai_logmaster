@@ -196,18 +196,9 @@ class TriageWrapper:
         print("[TRIAGE]     pip install langchain langchain-openai")
 
 def init_config():
-    """Initialize configuration"""
-    from ai_logmaster.config import init_config as do_init
-    
-    if do_init():
-        print("✅ Configuration already exists")
-    else:
-        print("✅ Configuration initialized")
-    
-    print("\nNext steps:")
-    print("1. Edit ~/.ai-logmaster/config.yaml")
-    print("2. Set your API key")
-    print("3. Run: logmaster run \"your command\"")
+    """Initialize configuration via web dashboard"""
+    from ai_logmaster.dashboard.server import start_dashboard
+    start_dashboard()
 
 def main():
     parser = argparse.ArgumentParser(

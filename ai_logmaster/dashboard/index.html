@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI LogMaster — Configuration Dashboard</title>
+    <meta name="description" content="Configure AI LogMaster settings through a visual dashboard">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <!-- Animated background blobs -->
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>
+                        <path d="M8 22L12 10H14L18 22H16L15 19H11L10 22H8ZM11.5 17.5H14.5L13 12.5L11.5 17.5Z" fill="white"/>
+                        <path d="M19 22V10H21V22H19Z" fill="white"/>
+                        <defs>
+                            <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
+                                <stop stop-color="#6366f1"/>
+                                <stop offset="1" stop-color="#a855f7"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>AI LogMaster</h1>
+                    <span class="logo-subtitle">Configuration Dashboard</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <span class="config-path-badge" id="config-path-badge" title="Config file path">~/.ai-logmaster/config.json</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-grid">
+
+            <!-- ═══════════════════════ AI PROVIDER CARD ═══════════════════════ -->
+            <section class="card card-provider" id="card-provider">
+                <div class="card-header">
+                    <div class="card-icon">🤖</div>
+                    <div>
+                        <h2>AI Provider</h2>
+                        <p class="card-desc">Choose your LLM provider and model</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="ai-provider">Provider</label>
+                        <div class="select-wrapper">
+                            <select id="ai-provider">
+                                <option value="groq">Groq</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="anthropic">Anthropic</option>
+                                <option value="google">Google</option>
+                                <option value="nvidia">Nvidia</option>
+                            </select>
+                            <div class="select-arrow">▾</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ai-model">Model</label>
+                        <div class="model-input-wrapper">
+                            <input type="text" id="ai-model" placeholder="e.g. llama-3.3-70b-versatile" autocomplete="off">
+                            <div class="model-suggestions" id="model-suggestions"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ai-api-key">
+                            API Key
+                            <span class="env-hint" id="env-hint">env: GROQ_API_KEY</span>
+                        </label>
+                        <div class="input-with-action">
+                            <input type="password" id="ai-api-key" placeholder="Enter your API key...">
+                            <button type="button" class="btn-icon" id="toggle-key-visibility" title="Show/hide API key">
+                                <span class="eye-icon">👁</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="base-url-group" style="display:none;">
+                        <label for="ai-base-url">Base URL <span class="optional-tag">optional</span></label>
+                        <input type="text" id="ai-base-url" placeholder="https://integrate.api.nvidia.com/v1">
+                    </div>
+
+                    <!-- Test Connection -->
+                    <div class="test-connection-area">
+                        <button type="button" class="btn btn-test" id="btn-test-connection">
+                            <span class="btn-text">⚡ Test Connection</span>
+                            <span class="btn-spinner" style="display:none;">
+                                <span class="spinner"></span> Testing...
+                            </span>
+                        </button>
+                        <div class="test-result" id="test-result"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════ MODEL TUNING CARD ═══════════════════════ -->
+            <section class="card card-tuning" id="card-tuning">
+                <div class="card-header">
+                    <div class="card-icon">🎛️</div>
+                    <div>
+                        <h2>Model Tuning</h2>
+                        <p class="card-desc">Fine-tune response behavior</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="ai-temperature">
+                            Temperature
+                            <span class="slider-value" id="temperature-value">0.2</span>
+                        </label>
+                        <input type="range" id="ai-temperature" min="0" max="1" step="0.05" value="0.2" class="slider">
+                        <div class="slider-labels">
+                            <span>Precise</span>
+                            <span>Creative</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ai-max-tokens">Max Tokens</label>
+                        <div class="token-input-wrapper">
+                            <input type="number" id="ai-max-tokens" min="256" max="8192" step="128" value="1000">
+                            <span class="token-unit">tokens</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════ AGENT FEATURES CARD ═══════════════════════ -->
+            <section class="card card-agent" id="card-agent">
+                <div class="card-header">
+                    <div class="card-icon">🧠</div>
+                    <div>
+                        <h2>Agent Features</h2>
+                        <p class="card-desc">Control error analysis behavior</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="toggle-group">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <span class="toggle-label">AI Analysis</span>
+                                <span class="toggle-desc">Use AI to analyze errors</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="agent-use-ai" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <span class="toggle-label">Cached Solutions</span>
+                                <span class="toggle-desc">Use pre-built solutions for common errors</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="agent-cached" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <span class="toggle-label">Fetch Documentation</span>
+                                <span class="toggle-desc">Search the web for relevant docs</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="agent-fetch-docs" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <span class="toggle-label">Auto Fix</span>
+                                <span class="toggle-desc">Attempt automatic code fixes</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="agent-auto-fix" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════ DOCUMENTATION CARD ═══════════════════════ -->
+            <section class="card card-docs" id="card-docs">
+                <div class="card-header">
+                    <div class="card-icon">📚</div>
+                    <div>
+                        <h2>Documentation Search</h2>
+                        <p class="card-desc">Configure doc lookup sources</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <span class="toggle-label">Enable Search</span>
+                            <span class="toggle-desc">Search documentation for error context</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="doc-enable-search" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="doc-search-engine">Search Engine</label>
+                        <div class="select-wrapper">
+                            <select id="doc-search-engine">
+                                <option value="duckduckgo">DuckDuckGo</option>
+                            </select>
+                            <div class="select-arrow">▾</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════ OUTPUT CARD ═══════════════════════ -->
+            <section class="card card-output" id="card-output">
+                <div class="card-header">
+                    <div class="card-icon">📟</div>
+                    <div>
+                        <h2>Output</h2>
+                        <p class="card-desc">Control terminal output verbosity</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="toggle-group">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <span class="toggle-label">Verbose Mode</span>
+                                <span class="toggle-desc">Show detailed processing logs</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="output-verbose" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <span class="toggle-label">Show API Calls</span>
+                                <span class="toggle-desc">Log each API call made to the LLM</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="output-show-api" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ═══════════════════════ SAVE BAR ═══════════════════════ -->
+        <footer class="save-bar">
+            <div class="save-bar-inner">
+                <div class="save-status" id="save-status"></div>
+                <div class="save-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-reset">Reset to Defaults</button>
+                    <button type="button" class="btn btn-primary" id="btn-save">
+                        <span class="btn-text">💾 Save Configuration</span>
+                        <span class="btn-spinner" style="display:none;">
+                            <span class="spinner"></span> Saving...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/script.js"></script>
+</body>
+</html>

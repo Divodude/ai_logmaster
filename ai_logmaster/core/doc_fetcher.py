@@ -85,26 +85,57 @@ class DocumentationFetcher:
         if not self.available:
             return ""
         
-        # Build more specific search queries
         queries = []
-        
-        # Extract just the error type if present (e.g., "NameError" from "NameError: name 'Response' is not defined")
         error_name = error_msg.split(':')[0].strip() if ':' in error_msg else error_type
         
-        # Query 1: Most specific - library + error type + key part of message
-        if library:
-            # Extract key part of error message (avoid full message which may be too specific)
-            key_msg = error_msg.split(':')[-1].strip()[:40] if ':' in error_msg else error_msg[:40]
-            queries.append(f"{library} {error_name} {key_msg} solution")
-        else:
-            key_msg = error_msg.split(':')[-1].strip()[:40] if ':' in error_msg else error_msg[:40]
-            queries.append(f"python {error_name} {key_msg} fix")
-        
-        # Query 2: Error type specific with library
-        if library and error_name:
-            queries.append(f"{library} {error_name} common causes")
-        elif error_name and error_name.lower() != "error":
-            queries.append(f"python {error_name} how to fix")
+        # Try to generate optimized queries using LLM
+        try:
+            from .llm_manager import GlobalLLMManager
+            from langchain_core.messages import SystemMessage, HumanMessage
+            
+            llm = GlobalLLMManager().get_llm()
+            if llm:
+                system_prompt = SystemMessage(
+                    content=(
+                        "You are an expert search query generator. "
+                        "Given an error message and a library context, generate exactly 2 highly optimized "
+                        "search queries to find solutions on DuckDuckGo. "
+                        "Output ONLY the 2 queries, one per line, with no bullet points, numbers, or extra text."
+                    )
+                )
+                human_prompt = HumanMessage(
+                    content=f"Error: {error_msg}\nLibrary: {library}\nError Type: {error_name}"
+                )
+                
+                print("[DOC_FETCHER] Optimizing search queries with LLM...")
+                response = llm.invoke([system_prompt, human_prompt])
+                content = response.content.strip()
+                
+                # Parse lines, filtering out empty ones
+                llm_queries = [line.strip() for line in content.split('\n') if line.strip()][:2]
+                
+                # Remove common list artifacts just in case
+                import re
+                llm_queries = [re.sub(r'^(?:\d+\.|\*|-)\s*', '', q) for q in llm_queries]
+                
+                if len(llm_queries) >= 1:
+                    queries = llm_queries
+                    print("[DOC_FETCHER] ✓ Successfully generated optimized queries")
+        except Exception as e:
+            print(f"[DOC_FETCHER] LLM query optimization failed: {e}")
+            
+        # Fallback to manual query building if LLM failed or wasn't available
+        if not queries:
+            print("[DOC_FETCHER] Using fallback search query generation")
+            if library:
+                key_msg = error_msg.split(':')[-1].strip()[:40] if ':' in error_msg else error_msg[:40]
+                queries.append(f"{library} {error_name} {key_msg} solution")
+                queries.append(f"{library} {error_name} common causes")
+            else:
+                key_msg = error_msg.split(':')[-1].strip()[:40] if ':' in error_msg else error_msg[:40]
+                queries.append(f"python {error_name} {key_msg} fix")
+                if error_name and error_name.lower() != "error":
+                    queries.append(f"python {error_name} how to fix")
         
         # Fetch from multiple searches
         all_docs = []

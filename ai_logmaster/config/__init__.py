@@ -12,8 +12,7 @@ import json
 DEFAULT_CONFIG_DIR = Path.home() / ".ai-logmaster"
 DEFAULT_CONFIG_FILE_JSON = DEFAULT_CONFIG_DIR / "config.json"
 DEFAULT_CONFIG_FILE_YAML = DEFAULT_CONFIG_DIR / "config.yaml"
-PACKAGE_CONFIG_EXAMPLE_JSON = Path(__file__).parent / "config.json.example"
-PACKAGE_CONFIG_EXAMPLE_YAML = Path(__file__).parent / "config.yaml.example"
+PACKAGE_CONFIG_JSON = Path(__file__).parent / "config.json"
 
 class Config:
     """Configuration manager"""
@@ -37,12 +36,11 @@ class Config:
         elif os.path.exists(DEFAULT_CONFIG_FILE_YAML):
             config_file = DEFAULT_CONFIG_FILE_YAML
             is_json = False
-        elif os.path.exists(PACKAGE_CONFIG_EXAMPLE_JSON):
-            # Use package example as fallback
-            config_file = PACKAGE_CONFIG_EXAMPLE_JSON
+        elif os.path.exists(PACKAGE_CONFIG_JSON):
+            # Use package config as fallback
+            config_file = PACKAGE_CONFIG_JSON
             is_json = True
-            print(f"[CONFIG] Using example config from {PACKAGE_CONFIG_EXAMPLE_JSON}")
-            print(f"[CONFIG] Copy to {DEFAULT_CONFIG_FILE_JSON} to customize")
+            print(f"[CONFIG] Using config from {PACKAGE_CONFIG_JSON}")
         else:
             # Return minimal default config
             return self._get_default_config()
@@ -143,9 +141,9 @@ def init_config():
         DEFAULT_CONFIG_DIR.mkdir(parents=True)
         print(f"[CONFIG] Created config directory: {DEFAULT_CONFIG_DIR}")
     
-    if not DEFAULT_CONFIG_FILE_JSON.exists() and PACKAGE_CONFIG_EXAMPLE_JSON.exists():
+    if not DEFAULT_CONFIG_FILE_JSON.exists() and PACKAGE_CONFIG_JSON.exists():
         import shutil
-        shutil.copy(PACKAGE_CONFIG_EXAMPLE_JSON, DEFAULT_CONFIG_FILE_JSON)
+        shutil.copy(PACKAGE_CONFIG_JSON, DEFAULT_CONFIG_FILE_JSON)
         print(f"[CONFIG] Created config file: {DEFAULT_CONFIG_FILE_JSON}")
         print(f"[CONFIG] Please edit this file to set your API key")
         return False

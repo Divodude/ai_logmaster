@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="ai-logmaster",
-    version="1.0.2",
+    version="1.1.0",
     author="Divyansh",
     author_email="ry604492@gmail.com",
     description="Smart error analysis tool with AI-powered solutions",
@@ -55,6 +55,13 @@ setup(
     },
     include_package_data=True,
     package_data={
-        "ai_logmaster": ["config/*.yaml", "config/*.example"],
+        "ai_logmaster": [
+            "config/*.yaml",
+            "config/*.example",
+            "config/*.json",
+            "dashboard/*.html",
+            "dashboard/*.css",
+            "dashboard/*.js",
+        ],
     },
 )
