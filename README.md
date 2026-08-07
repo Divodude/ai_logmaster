@@ -33,6 +33,35 @@ git clone https://github.com/Divodude/ai-logmaster.git
 cd ai-logmaster
 pip install -e .
 ```
+---
+
+## 🐳 Docker
+
+You can also run AI LogMaster in a container instead of installing it locally.
+
+**Build the image:**
+
+```bash
+docker compose build
+```
+
+**Set your API key** (create a `.env` file in the project root — this file is
+git-ignored, never commit real keys):
+
+```bash
+GROQ_API_KEY=your-api-key-here
+```
+
+**Run a command through logmaster:**
+
+```bash
+docker compose run --rm logmaster run "python your_script.py"
+```
+
+Your current directory is mounted into the container at `/workspace`, so
+`logmaster` can see and analyze your project's files.
+
+---
 
 ## 📖 Quick Start
 
