@@ -212,6 +212,10 @@ Opens a local web dashboard — configure everything visually and test your conn
 | **Anthropic** | claude-sonnet-4, claude-3-haiku | `ANTHROPIC_API_KEY` |
 | **Google** | gemini-2.5-flash, gemini-2.5-pro | `GOOGLE_API_KEY` |
 | **NVIDIA** | meta/llama-3.1-405b-instruct | `NVIDIA_API_KEY` |
+| **Local LLMs** | Ollama, LM Studio, vLLM, Jan, etc. | Custom Base URL (`http://localhost:11434/v1`) |
+
+> 📊 **Local LLM Benchmarks**: See our community [Local LLM Benchmark Leaderboard](benchmarks/README.md) for performance, hardware specs, and accuracy ratings!
+
 
 ### Manual Configuration
 
@@ -418,13 +422,16 @@ requests>=2.32.0
 
 ## 🤝 Contributing
 
-Contributions welcome! Please:
+Contributions welcome! You can contribute by:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+1. **Submitting Benchmark Results**: Test AI LogMaster on local LLMs (Ollama, LM Studio, etc.) and submit your hardware/performance results to our [Benchmark Leaderboard](benchmarks/README.md).
+2. **Code & Feature Contributions**:
+   - Fork the repository
+   - Create a feature branch
+   - Make your changes
+   - Add tests if applicable
+   - Submit a pull request
+
 
 ## 📄 License
 
