@@ -817,6 +817,187 @@ input::placeholder {
     background: var(--border-hover);
 }
 
+/* ─── Cache Management Card ─── */
+.card-cache {
+    grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+    .card-cache { grid-column: span 1; }
+}
+
+/* Stats row */
+.cache-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.cache-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1.5rem;
+    min-width: 120px;
+    flex: 1;
+    transition: border-color var(--transition-fast);
+}
+
+.cache-stat-item:hover {
+    border-color: var(--accent-primary);
+}
+
+.cache-stat-value {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.cache-stat-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Cache path */
+.cache-path-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+    padding: 0.6rem 0.85rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+}
+
+.cache-path-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.cache-path-value {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--text-accent);
+    word-break: break-all;
+}
+
+/* Entries table */
+.cache-entries-wrapper {
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.25rem;
+}
+
+.cache-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.cache-table thead {
+    position: sticky;
+    top: 0;
+    background: rgba(17, 17, 27, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 2;
+}
+
+.cache-table th {
+    padding: 0.6rem 0.85rem;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.cache-table td {
+    padding: 0.6rem 0.85rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cache-table tr:last-child td {
+    border-bottom: none;
+}
+
+.cache-table tbody tr:hover td {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+.cache-table .cache-hits-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-primary-glow);
+    color: var(--text-accent);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    min-width: 28px;
+    padding: 0.1rem 0.4rem;
+}
+
+.cache-empty {
+    text-align: center;
+    color: var(--text-muted) !important;
+    padding: 2rem !important;
+    font-style: italic;
+}
+
+/* Cache actions */
+.cache-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.cache-action-result {
+    margin-top: 0.75rem;
+    font-size: 0.82rem;
+    min-height: 1.4rem;
+}
+
+.cache-action-result.success { color: var(--success); }
+.cache-action-result.error   { color: var(--error); }
+
+/* Danger button */
+.btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: var(--error);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+}
+
 /* ─── Responsive tweaks ─── */
 @media (max-width: 600px) {
     .app-container {

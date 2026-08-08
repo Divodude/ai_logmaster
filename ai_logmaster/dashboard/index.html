@@ -67,6 +67,8 @@
                                 <option value="anthropic">Anthropic</option>
                                 <option value="google">Google</option>
                                 <option value="nvidia">Nvidia</option>
+                                <option value="lm_studio">🏠 LM Studio (Local)</option>
+                                <option value="ollama">🦙 Ollama (Local)</option>
                             </select>
                             <div class="select-arrow">▾</div>
                         </div>
@@ -294,6 +296,71 @@
                             </label>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════ CACHE MANAGEMENT CARD ═══════════════════════ -->
+            <section class="card card-cache" id="card-cache">
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <div>
+                        <h2>Error Solution Cache</h2>
+                        <p class="card-desc">AI solutions are cached locally across all projects</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Stats row -->
+                    <div class="cache-stats" id="cache-stats">
+                        <div class="cache-stat-item">
+                            <span class="cache-stat-value" id="cache-total-entries">—</span>
+                            <span class="cache-stat-label">Cached Errors</span>
+                        </div>
+                        <div class="cache-stat-item">
+                            <span class="cache-stat-value" id="cache-total-hits">—</span>
+                            <span class="cache-stat-label">Total Cache Hits</span>
+                        </div>
+                        <div class="cache-stat-item">
+                            <span class="cache-stat-value" id="cache-size">—</span>
+                            <span class="cache-stat-label">Cache Size</span>
+                        </div>
+                    </div>
+
+                    <!-- Cache path -->
+                    <div class="cache-path-row">
+                        <span class="cache-path-label">📁 Location:</span>
+                        <code class="cache-path-value" id="cache-path">loading...</code>
+                    </div>
+
+                    <!-- Entries table -->
+                    <div class="cache-entries-wrapper" id="cache-entries-wrapper">
+                        <table class="cache-table" id="cache-table">
+                            <thead>
+                                <tr>
+                                    <th>Error Signature</th>
+                                    <th>Type</th>
+                                    <th>Hits</th>
+                                    <th>Last Seen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cache-table-body">
+                                <tr><td colspan="4" class="cache-empty">Loading cache...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="cache-actions">
+                        <button type="button" class="btn btn-secondary" id="btn-refresh-cache">
+                            🔄 Refresh
+                        </button>
+                        <button type="button" class="btn btn-danger" id="btn-clear-cache">
+                            <span class="btn-text">🗑️ Clear Cache</span>
+                            <span class="btn-spinner" style="display:none;">
+                                <span class="spinner"></span> Clearing...
+                            </span>
+                        </button>
+                    </div>
+                    <div class="cache-action-result" id="cache-action-result"></div>
                 </div>
             </section>
 

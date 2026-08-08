@@ -13,6 +13,8 @@ import webbrowser
 from pathlib import Path
 from urllib.parse import urlparse
 
+from ai_logmaster.core.error_cache import ErrorCache, CACHE_FILE
+
 # Config paths
 CONFIG_DIR = Path.home() / ".ai-logmaster"
 CONFIG_FILE = CONFIG_DIR / "config.json"
@@ -52,6 +54,22 @@ PROVIDER_MODELS = {
         "meta/llama-3.1-70b-instruct",
         "nvidia/llama-3.1-nemotron-70b-instruct",
     ],
+    "lm_studio": [
+        "local-model",
+        "llama-3-8b-instruct",
+        "mistral-7b-instruct",
+        "phi-3-mini",
+        "deepseek-coder-6.7b",
+    ],
+    "ollama": [
+        "llama3",
+        "llama3:8b",
+        "mistral",
+        "phi3",
+        "deepseek-coder",
+        "codellama",
+        "gemma2",
+    ],
 }
 
 # Provider → API key env var name
@@ -61,6 +79,8 @@ PROVIDER_ENV_VARS = {
     "anthropic": "ANTHROPIC_API_KEY",
     "google": "GOOGLE_API_KEY",
     "nvidia": "NVIDIA_API_KEY",
+    "lm_studio": "LM_STUDIO_API_KEY (not required)",
+    "ollama": "OLLAMA_API_KEY (not required)",
 }
 
 
@@ -141,6 +161,19 @@ def _test_connection(config: dict) -> dict:
             if base_url:
                 kwargs["base_url"] = base_url
             llm = ChatOpenAI(**kwargs)
+        elif provider in ("lm_studio", "ollama"):
+            from langchain_openai import ChatOpenAI
+            default_urls = {
+                "lm_studio": "http://localhost:1234/v1",
+                "ollama": "http://localhost:11434/v1",
+            }
+            resolved_url = base_url or default_urls[provider]
+            llm = ChatOpenAI(
+                model=model,
+                api_key=api_key or "local",
+                base_url=resolved_url,
+                max_tokens=5,
+            )
         elif provider == "anthropic":
             from langchain_anthropic import ChatAnthropic
             llm = ChatAnthropic(model=model, api_key=api_key, max_tokens=5)
@@ -219,6 +252,12 @@ class DashboardHandler(http.server.BaseHTTPRequestHandler):
                 "config_path": str(CONFIG_FILE),
             }
             self._send_json(config)
+        elif path == "/api/cache":
+            try:
+                stats = ErrorCache().stats()
+                self._send_json({"success": True, "data": stats})
+            except Exception as e:
+                self._send_json({"success": False, "message": str(e)}, 500)
         else:
             self.send_error(404)
 
@@ -250,6 +289,21 @@ class DashboardHandler(http.server.BaseHTTPRequestHandler):
             # Shutdown in a separate thread so the response can be sent first
             threading.Thread(target=self.server.shutdown, daemon=True).start()
 
+        else:
+            self.send_error(404)
+
+    def do_DELETE(self):
+        path = urlparse(self.path).path
+
+        if path == "/api/cache":
+            try:
+                count = ErrorCache().clear()
+                self._send_json({
+                    "success": True,
+                    "message": f"Cache cleared — {count} entr{'y' if count == 1 else 'ies'} removed."
+                })
+            except Exception as e:
+                self._send_json({"success": False, "message": str(e)}, 500)
         else:
             self.send_error(404)
 
