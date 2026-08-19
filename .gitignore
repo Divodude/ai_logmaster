@@ -107,6 +107,7 @@ ENV/
 env.bak/
 venv.bak/
 envs/
+.watchman/
 
 # Spyder project settings
 .spyderproject
@@ -311,3 +312,6 @@ datasets/
 .user
 *.user
 .personal/
+
+# Excluded sub-projects
+watchman/
