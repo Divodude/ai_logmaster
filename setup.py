@@ -5,14 +5,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="ai-logmaster",
-    version="1.3.1",
+    version="1.3.2",
     author="Divyansh",
     author_email="ry604492@gmail.com",
     description="Smart error analysis tool with AI-powered solutions",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Divodude/ai-logmaster",
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests", "tests.*", "watchman", "watchman.*"]),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
